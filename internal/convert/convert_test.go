@@ -29,6 +29,17 @@ func TestConvert_SameDialect(t *testing.T) {
 	}
 }
 
+func TestConvert_SQLiteToMariaDB_InsertOrIgnore(t *testing.T) {
+	in := `INSERT OR IGNORE INTO carriers (id, name) VALUES (1, 'x');`
+	out, err := Convert(in, dialect.SQLite, dialect.MariaDB)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, "INSERT IGNORE INTO") || strings.Contains(out, "INSERT OR IGNORE") {
+		t.Fatalf("unexpected output: %s", out)
+	}
+}
+
 func TestConvert_MariaDBToPostgres_StripsEngine(t *testing.T) {
 	in := `CREATE TABLE t (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;`
 	out, err := Convert(in, dialect.MariaDB, dialect.Postgres)
