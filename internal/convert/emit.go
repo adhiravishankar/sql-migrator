@@ -11,16 +11,13 @@ import (
 func emitScript(script *model.Script, from, to dialect.Dialect) (string, error) {
 	var b strings.Builder
 	for i, st := range script.Statements {
-		if i > 0 {
-			b.WriteString(";\n")
-		}
 		var s string
 		var err error
 		switch st := st.(type) {
 		case *model.Raw:
 			s, err = legacyApply(st.SQL, from, to)
 		case *model.CreateTable:
-			s = emitCreateTable(st, from, to)
+			s, err = emitCreateTable(st, from, to)
 		case *model.Insert:
 			s, err = emitInsert(st, from, to)
 		default:
@@ -30,11 +27,16 @@ func emitScript(script *model.Script, from, to dialect.Dialect) (string, error) 
 			return "", err
 		}
 		b.WriteString(s)
+		if i < len(script.Statements)-1 {
+			b.WriteString(";\n")
+		} else {
+			b.WriteString(";")
+		}
 	}
 	return b.String(), nil
 }
 
-func emitCreateTable(ct *model.CreateTable, from, to dialect.Dialect) string {
+func emitCreateTable(ct *model.CreateTable, from, to dialect.Dialect) (string, error) {
 	var b strings.Builder
 	b.WriteString("CREATE TABLE ")
 	if ct.IfNotExists {
@@ -49,20 +51,26 @@ func emitCreateTable(ct *model.CreateTable, from, to dialect.Dialect) string {
 		b.WriteString("  ")
 		b.WriteString(formatIdent(col.Name, to))
 		b.WriteString(" ")
-		rest, _ := legacyApply(col.Rest, from, to)
+		rest, err := legacyApply(col.Rest, from, to)
+		if err != nil {
+			return "", err
+		}
 		b.WriteString(rest)
 	}
 	for _, line := range ct.TableLevel {
 		b.WriteString(",\n  ")
-		lineOut, _ := legacyApply(line, from, to)
+		lineOut, err := legacyApply(line, from, to)
+		if err != nil {
+			return "", err
+		}
 		b.WriteString(lineOut)
 	}
-	b.WriteString("\n);")
+	b.WriteString("\n)")
 	s := b.String()
 	if to == dialect.MariaDB && (from == dialect.Postgres || from == dialect.SQLite) {
 		s = doubleQuotedIdentToBackticks(s)
 	}
-	return s
+	return s, nil
 }
 
 func emitInsert(ins *model.Insert, from, to dialect.Dialect) (string, error) {

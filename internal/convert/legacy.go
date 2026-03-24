@@ -123,6 +123,7 @@ func postgresToMariaDB() []rule {
 		{mustRE(`\bSERIAL\b`), `INT NOT NULL AUTO_INCREMENT`},
 		{mustRE(`\bBYTEA\b`), `LONGBLOB`},
 		{mustRE(`\bDOUBLE\s+PRECISION\b`), `DOUBLE`},
+		{mustRE(`\bTIMESTAMP\s+WITH\s+TIME\s+ZONE\b`), `DATETIME`},
 		{mustRE(`\bTIMESTAMP\s+WITHOUT\s+TIME\s+ZONE\b`), `DATETIME`},
 		{mustRE(`\bTIMESTAMP\b`), `DATETIME`},
 		{mustRE(`\bBOOLEAN\b`), `BOOL`},
