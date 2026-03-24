@@ -14,8 +14,8 @@ import (
 func main() {
 	inputPath := flag.String("input", "", "path to input .sql file (required)")
 	outputPath := flag.String("output", "", "path to write converted SQL (default: stdout)")
-	from := flag.String("from", "", "source dialect: sqlite, postgres, mariadb, or sqlserver (required)")
-	to := flag.String("to", "", "target dialect: sqlite, postgres, mariadb, or sqlserver (required)")
+	from := flag.String("from", "", "source dialect: sqlite, postgres, mariadb or mysql (same), or sqlserver (required)")
+	to := flag.String("to", "", "target dialect: sqlite, postgres, mariadb or mysql (same), or sqlserver (required)")
 	flag.Parse()
 
 	if strings.TrimSpace(*from) == "" || strings.TrimSpace(*to) == "" || strings.TrimSpace(*inputPath) == "" {

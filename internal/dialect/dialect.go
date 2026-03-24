@@ -43,6 +43,6 @@ func Parse(s string) (Dialect, error) {
 	case "sqlserver", "mssql", "tsql", "t-sql":
 		return SQLServer, nil
 	default:
-		return Unknown, fmt.Errorf("unknown dialect %q (use sqlite, postgres, mariadb, or sqlserver)", s)
+		return Unknown, fmt.Errorf("unknown dialect %q (use sqlite, postgres, mariadb or mysql, or sqlserver)", s)
 	}
 }
